@@ -1,5 +1,14 @@
-var url ="https://my-train-schedule.firebaseio.com/";
-var dataRef = new Firebase(url);
+var config = {
+    apiKey: "AIzaSyBl3m71khATPzPsUn1eFSLV-vt0QKYiOpY",
+    authDomain: "train-schedule-b1e39.firebaseapp.com",
+    databaseURL: "https://train-schedule-b1e39.firebaseio.com",
+    projectId: "train-schedule-b1e39",
+    storageBucket: "train-schedule-b1e39.appspot.com",
+    messagingSenderId: "358633146972"
+  };
+  firebase.initializeApp(config);
+
+var trainData = firebase.database();
 var name ='';
 var destination = '';
 var firstTrainTime = '';
@@ -12,13 +21,16 @@ var currentTime = '';
 var diffTime = '';
 var tRemainder = '';
 var minutesTillTrain = '';
-var keyHolder = '';
+
+
 var getKey = '';
 
 
 $(document).ready(function() {
 
-     $("#add-train").on("click", function() {
+     $(document).on("click", "#train-add", function() {
+          event.preventDefault();
+          console.log("here");
      	name = $('#name-input').val().trim();
      	destination = $('#destination-input').val().trim();
      	firstTrainTime = $('#first-train-time-input').val().trim();
@@ -30,8 +42,15 @@ $(document).ready(function() {
           minutesTillTrain = frequency - tRemainder;
           nextTrain = moment().add(minutesTillTrain, "minutes");
           nextTrainFormatted = moment(nextTrain).format("hh:mm");
-
-          keyHolder = dataRef.push({
+          var trainObject = {
+               name: name,
+               destination: destination,
+               firstTrainTime: firstTrainTime, 
+               frequency: frequency,
+               nextTrainFormatted: nextTrainFormatted,
+               minutesTillTrain: minutesTillTrain
+          }
+          trainData.ref().push({
      		name: name,
      		destination: destination,
      		firstTrainTime: firstTrainTime, 
@@ -39,6 +58,7 @@ $(document).ready(function() {
                nextTrainFormatted: nextTrainFormatted,
                minutesTillTrain: minutesTillTrain
      	});
+          console.log(trainObject);
 
           $('#name-input').val('');
      	$('#destination-input').val('');
@@ -47,8 +67,8 @@ $(document).ready(function() {
 
      	return false;
      });
-
-      dataRef.on("child_added", function(childSnapshot) {
+  
+     trainData.ref().on("child_added", function(childSnapshot) {
 	// full list of items to the well
 
 		$('.train-schedule').append("<tr class='table-row' id=" + "'" + childSnapshot.key() + "'" + ">" +
